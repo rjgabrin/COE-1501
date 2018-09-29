@@ -125,9 +125,10 @@ public class crossword implements DLB, MyDictionary{
 			if(suffixPositive(testChar)){
 				//if the column index equals the board dimension, then move down a row and reset column
 				
-				
-				//TODO: set stopper for first iteration success value
-				
+				//set stopper for first iteration success value
+				if(row == boardLength && col == boardLength){
+					System.out.println("A solution has been found!");
+				}
 				
 				if(col+1 >= boardLength){
 					//solve the next index
