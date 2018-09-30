@@ -122,9 +122,8 @@ public class crossword implements DLB, MyDictionary{
 			//get the vcharacter to be attempted
 			char testChar = alphabet[tempCount];
 			//if the item is a valid suffix, try to solve
-			if(suffixPositive(testChar)){
+			if(suffixPositive(testChar, col, row)){
 				//if the column index equals the board dimension, then move down a row and reset column
-				
 				//set stopper for first iteration success value
 				if(row == boardLength && col == boardLength){
 					System.out.println("A solution has been found!");
@@ -147,12 +146,28 @@ public class crossword implements DLB, MyDictionary{
 	}
 	
 	
-	public static suffixPositive(char checkChar){
+	public static boolean suffixPositive(char checkChar, int column, int row){
 		
 		boolean successh = false;
 		boolean successv = false;
 		
 		//check horizontally
+		
+		StringBuilder sbHorizontal = new StringBuilder();
+		
+		
+		//can remove one loop, should just use the row passed in to account for where it should measure
+		
+		
+		for(int y = 0; y < row; y++){
+			for(int x = 0; x < col; x++){
+				if(crosswordBoard[y][x] != null){
+						sbHorizontal.append(crosswordBoard[y][x]);
+				}
+			}
+		}
+		
+		searchPrefix(sbHorizontal, 0, sbHorizontal.length());
 		
 		//using StringBuilder, build a string of the current row being checked and check it to the valid prefixes
 		if(valid){
@@ -162,6 +177,22 @@ public class crossword implements DLB, MyDictionary{
 		)
 		
 		//check vertically
+		
+		StringBuilder sbVertical = new StringBuilder();
+		
+		
+		//can remove one loop, should just use col passed in to account for where it should measure
+		
+		
+		for(int x = 0; x < col; x++){
+			for(int y = 0; y < row; y++){
+				if(crosswordBoard[y][x] != null){
+						sbVertical.append(crosswordBoard[y][x]);
+				}
+			}
+		}
+		
+		searchPrefix(sbVertical, 0, sbVertical.length());
 		
 		//using StringBuilder, build a string of the current column being checked and check it to the valid prefixes
 		if(valid){
