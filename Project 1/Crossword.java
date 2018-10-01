@@ -127,15 +127,18 @@ public class Crossword{
 	
 	
 	public static void solve(int col, int row, int tempCount){
+		System.out.println("Starting the solve method.");
 		int count = 0;
 		int nextCol = col;
 		int nextRow = row;
 		//while there are still letters in the alphabet to be tried at the current index
 		while(tempCount < 26){
+			System.out.println("In while loop");
 			//get the vcharacter to be attempted
 			char testChar = alphabet[tempCount];
 			//if the item is a valid suffix, try to solve
 			if(suffixPositive(testChar, col, row)){
+				System.out.println("Positive suffix.");
 				//if the column index equals the board dimension, then move down a row and reset column
 				//set stopper for first iteration success value
 				if(row == boardLength && col == boardLength){
@@ -145,17 +148,18 @@ public class Crossword{
 				if(nextCol+1 >= boardLength){
 					//solve the next index
 					solve(nextCol = 0, nextRow+1, count =0);
+					System.out.println(testChar);
 				}else{
 					//if the column is not over and on a new row, solve in the current row
 					solve(nextCol+1, nextRow, count = 0);	
 				}
 			}else{
+				System.out.println("Not a suffix. Increment letter.");
 				//if the letter doesn't count, increment the character value and try to solve with the new character
 				tempCount++;
 				solve(nextCol, nextRow, tempCount);
 			}
 		}
-		
 	}
 	
 	
@@ -180,7 +184,7 @@ public class Crossword{
 			}
 		}
 		
-		int validHorSuffix = nDict.searchPrefix(sbHorizontal, 0, sbHorizontal.length());
+		int validHorSuffix = nDict.searchPrefix(sbHorizontal, 1, sbHorizontal.length());
 		// 0. Bad
 		// 1. Prefix
 		// 2. Word 
@@ -209,7 +213,7 @@ public class Crossword{
 			}
 		}
 		
-		int validVertSuffix = nDict.searchPrefix(sbVertical, 0, sbVertical.length());
+		int validVertSuffix = nDict.searchPrefix(sbVertical, 1, sbVertical.length());
 		
 		//using StringBuilder, build a string of the current column being checked and check it to the valid prefixes
 		if(validVertSuffix == 1 || validVertSuffix == 2 || validVertSuffix == 3){
@@ -242,10 +246,9 @@ public class Crossword{
 		*/
 		
 		//create new scanner
-        Scanner inscan = new Scanner(System.in);
+        Scanner inscan = new Scanner(System.in);		
 		
-		//generate crossword board
-        crosswordBoard = buildBoard("test3a.txt");
+		
 		
 		//if the length/width of the board is > 0 (aka the board exists), then build the board
         if (0 < args.length) {
@@ -259,6 +262,8 @@ public class Crossword{
 			//if the corsswordBoard errors out, end the program
             System.exit(0);
         }
+		
+		System.out.println("Successfully Build Board");
 
 		//set integer to be checked for action
         int runProject = -1;
@@ -280,31 +285,37 @@ public class Crossword{
                     System.out.println("Program executing Part 1 of Assignment 1");
 					//attempt to run part 1
                     try {
-                        objectType("test3a.txt", "MyDictionary");
+                        objectType(args[0], "MyDictionary");
+						System.out.println("MyDictionary");
 						//if part 1 fails, catch the error
                     } catch(Exception e) {
                         e.printStackTrace();
                     }
 					
+					System.out.println("******************SOLVING PART 1******************");
 					
 					//solve part 1 starting at index 0,0 of the wordsearch grid with a count of 0 for the alphabet array
                     solve(0, 0, 0);
 					
-					
+					System.out.println("******************SOLVED PART 1******************");
 					//run the program with part 2
                } else if (runProject == 2) {
 				   //alert user
                     System.out.println("Program executing Part 2 of Assignment 1");
 					//attempt to run part 2
                     try {
-                        objectType("dict3a.txt", "DLB");
+                        objectType(args[0], "DLB");
 						//if part 2 fails, catch the error
                     } catch(Exception e) {
                         e.printStackTrace();
                     }
 					
+					System.out.println("******************SOLVING PART 2******************");
+					
 					//solve part 2 starting at index 0,0 of the wordsearch grid with a count of 0 for the alphabet array
                     solve(0, 0, 0);
+					
+					System.out.println("******************SOLVED PART 2******************");
 					
 					
                 } else {
@@ -320,6 +331,8 @@ public class Crossword{
 					}
 			}	
 		}while (runProject != 0);
+		
+		System.out.println("Done.");
 
     //close the scanner & exit the program
     inscan.close();
