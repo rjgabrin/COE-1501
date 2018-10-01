@@ -128,7 +128,6 @@ public class Crossword{
 	
 	public static void solve(int col, int row, int tempCount){
 		System.out.println("Starting the solve method.");
-		int count = 0;
 		int nextCol = col;
 		int nextRow = row;
 		//while there are still letters in the alphabet to be tried at the current index
@@ -147,11 +146,11 @@ public class Crossword{
 				
 				if(nextCol+1 >= boardLength){
 					//solve the next index
-					solve(nextCol = 0, nextRow+1, count =0);
+					solve(nextCol = 0, nextRow+1, tempCount);
 					System.out.println(testChar);
 				}else{
 					//if the column is not over and on a new row, solve in the current row
-					solve(nextCol+1, nextRow, count = 0);	
+					solve(nextCol+1, nextRow, tempCount);	
 				}
 			}else{
 				System.out.println("Not a suffix. Increment letter.");
@@ -185,6 +184,8 @@ public class Crossword{
 		}
 		
 		int validHorSuffix = nDict.searchPrefix(sbHorizontal, 1, sbHorizontal.length());
+		
+		System.out.println("Horizontal Suffix Output: " + validHorSuffix);
 		// 0. Bad
 		// 1. Prefix
 		// 2. Word 
@@ -215,6 +216,8 @@ public class Crossword{
 		
 		int validVertSuffix = nDict.searchPrefix(sbVertical, 1, sbVertical.length());
 		
+		System.out.println("Vertical Suffix Output: " + validVertSuffix);
+		
 		//using StringBuilder, build a string of the current column being checked and check it to the valid prefixes
 		if(validVertSuffix == 1 || validVertSuffix == 2 || validVertSuffix == 3){
 			successv = true;
@@ -223,8 +226,10 @@ public class Crossword{
 		}
 		
 		if(successh == true && successv == true){
+			System.out.println("///////////////////////////////////Suffix/////////////////////////////////");
 			return true;
 		}else{
+			System.out.println("----------------------------------Not Suffix-----------------------------");
 			return false;
 		}
 	}
