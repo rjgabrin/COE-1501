@@ -12,6 +12,9 @@ public class Crossword{
     public static DictInterface nDict = new MyDictionary();
 	public static int boardLength = 0;
 	public static char[][] crosswordBoard;
+	public static StringBuilder [] sbHorizontal;
+	public static StringBuilder [] sbVertical;
+	public static char objType;
 	
 	//declration of alphabet array to be used to check values at each index
 	public static char [] alphabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
@@ -40,6 +43,14 @@ public class Crossword{
 			
             int boardDimension = Integer.parseInt(br.readLine());
 			boardLength = boardDimension;
+			sbHorizontal = new StringBuilder[boardDimension];
+			sbVertical = new StringBuilder[boardDimension];
+			
+			for(int i = 0; i < boardDimension; i++){
+				sbHorizontal[i] = new StringBuilder();
+				sbVertical[i] = new StringBuilder();
+			}
+			
             tempBoard = new char[boardDimension][boardDimension];
 			
 			//read in data for the board
@@ -87,12 +98,14 @@ public class Crossword{
 		if (!(fileType.equals("DLB") || fileType.toLowerCase().equals("dlb"))){
 			
 			nDict = new MyDictionary();
+			objType = 'm';
 
 		} else {
 			
 			//otherwise, run with DLB
 			//nDict = new DLB();
 			nDict = new MyDictionary();
+			objType = 'd';
 
 		}
 		
@@ -133,15 +146,27 @@ public class Crossword{
 		//while there are still letters in the alphabet to be tried at the current index
 		while(tempCount < 26){
 			System.out.println("In while loop");
+			System.out.println("tempCount: " + tempCount + ", nextCol: " + nextCol + ", nextRow: " + nextRow);
+			
+			printBoard(sbHorizontal[row], sbVertical[col]);
+			
 			//get the vcharacter to be attempted
 			char testChar = alphabet[tempCount];
 			//if the item is a valid suffix, try to solve
 			if(suffixPositive(testChar, col, row)){
 				System.out.println("Positive suffix.");
+				
+				//store character in string
+				sbHorizontal[row].append(testChar);
+				sbVertical[col].append(testChar);
+				
 				//if the column index equals the board dimension, then move down a row and reset column
 				//set stopper for first iteration success value
 				if(row == boardLength && col == boardLength){
-					System.out.println("A solution has been found!");
+					System.out.println("A solution has been found! Congratulations, goodbye!");
+					if(objType == 'm'){
+						System.exit(0);
+					}
 				}
 				
 				if(nextCol+1 >= boardLength){
@@ -156,10 +181,32 @@ public class Crossword{
 				System.out.println("Not a suffix. Increment letter.");
 				//if the letter doesn't count, increment the character value and try to solve with the new character
 				tempCount++;
-				solve(nextCol, nextRow, tempCount);
 			}
 		}
+		
+		if(sbVertical.length == 0){
+			sbVertical[col].deleteCharAt( (sbVertical.length - 1) );
+		}
+		
+		if(sbHorizontal.length == 0){
+			sbHorizontal[row].deleteCharAt( (sbHorizontal.length - 1) );
+		}
+		
+		
 	}
+	
+	
+	public static void printBoard(StringBuilder horizontal, StringBuilder vertical){
+		
+		for(int i = 0; i < sbHorizontal.length; i++){
+			System.out.println("Horizontal SB: " + horizontal);
+		}
+		
+		for (int j = 0; j < sbVertical.length; j++){
+			System.out.println("Vertical SB: " + vertical);
+		}
+		
+	} 
 	
 	
 	public static boolean suffixPositive(char checkChar, int column, int row){
@@ -167,71 +214,143 @@ public class Crossword{
 		boolean successh = false;
 		boolean successv = false;
 		
-		//check horizontally
+		//if it's the end of the column or row, it has to check for the values to make a word
+		if(column == (boardLength-1) || row == (boardLength-1)){
+			//check horizontally
+			if(sbHorizontal[row] == null){
+				sbHorizontal[row] = new StringBuilder();
+			}
+			
+			sbHorizontal[row].append(checkChar);
+			
+			int validHorSuffix = nDict.searchPrefix(sbHorizontal[row]);
+			
+			System.out.println("Temp Horizontal: " + sbHorizontal[row]);
+			
+			int horizontalRemove = sbHorizontal[row].length() - 1;
+			
+			sbHorizontal[row].deleteCharAt(horizontalRemove);
+			
+			System.out.println("Horizontal Suffix Output: " + validHorSuffix);
+			// 0. Bad
+			// 1. Prefix
+			// 2. Word 
+			// 3. Prefix & Word 
+			
+			//using StringBuilder, build a string of the current row being checked and check it to the valid prefixes
+			if(validHorSuffix == 2 || validHorSuffix == 3){
+				successh = true;
+			}else{
+				successh = false;
+			}
+			
+			//check vertically
+			if(sbHorizontal[row] == null){
+				sbVertical[column] = new StringBuilder();
+			}
+			
+			sbVertical[column].append(checkChar);
+			
+			int validVertSuffix = nDict.searchPrefix(sbVertical[column]);
+			
+			System.out.println("Temp Vertical: " + sbVertical[column]);
+			
+			int verticalRemove = sbVertical[column].length() - 1;
+			
+			sbVertical[column].deleteCharAt(verticalRemove);
+			
+			System.out.println("Vertical Suffix Output: " + validVertSuffix);
+			
+			//using StringBuilder, build a string of the current column being checked and check it to the valid prefixes
+			if(validVertSuffix == 2 || validVertSuffix == 3){
+				successv = true;
+			}else{
+				successv = false;
+			}
+			
+			if(successh == true && successv == true){
+				System.out.println("///////////////////////////////////Suffix/////////////////////////////////");
+				return true;
+			}else{
+				System.out.println("----------------------------------Not Suffix-----------------------------");
+				return false;
+			}
 		
-		StringBuilder sbHorizontal = new StringBuilder();
-		
-		
-		//can remove one loop, should just use the row passed in to account for where it should measure
-		
-		
-		for(int y = 0; y < row; y++){
-			for(int x = 0; x < column; x++){
-				if(crosswordBoard[y][x] != '+' && crosswordBoard[y][x] != '-'){
-						sbHorizontal.append(crosswordBoard[y][x]);
-				}
+		//if it isn't the end of a column or row, need to check for prefix or word
+		}else{
+			//check horizontally
+			if(sbHorizontal[row] == null){
+				sbHorizontal[row] = new StringBuilder();
+			}
+			
+			sbHorizontal[row].append(checkChar);
+			
+			int validHorSuffix = nDict.searchPrefix(sbHorizontal[row]);
+			
+			System.out.println("Temp Horizontal: " + sbHorizontal[row]);
+			
+			int horizontalRemove = sbHorizontal[row].length() - 1;
+			
+			System.out.println("Index: " + horizontalRemove);
+			
+			sbHorizontal[row].deleteCharAt(horizontalRemove);
+			
+			System.out.println("Horizontal Suffix Output: " + validHorSuffix);
+			// 0. Bad
+			// 1. Prefix
+			// 2. Word 
+			// 3. Prefix & Word 
+			
+			//using StringBuilder, build a string of the current row being checked and check it to the valid prefixes
+			if(validHorSuffix == 1 || validHorSuffix == 3){
+				successh = true;
+			}else{
+				successh = false;
+			}
+			
+			//check vertically
+			if(sbHorizontal[row] == null){
+				sbVertical[column] = new StringBuilder();
+			}
+			
+			sbVertical[column].append(checkChar);
+			
+			int validVertSuffix = nDict.searchPrefix(sbVertical[column]);
+			
+			System.out.println("Temp Vertical: " + sbVertical[column]);
+			
+			int verticalRemove = sbVertical[column].length() - 1;
+			
+			sbVertical[column].deleteCharAt(verticalRemove);
+			
+			System.out.println("Vertical Suffix Output: " + validVertSuffix);
+			
+			//using StringBuilder, build a string of the current column being checked and check it to the valid prefixes
+			if(validVertSuffix == 1 || validVertSuffix == 3){
+				successv = true;
+			}else{
+				successv = false;
+			}
+			
+			
+			//if the letter is the first letter on the board, return true
+			if(sbVertical[column].length() == 1 && sbHorizontal[row].length() == 1){
+				return true;
+			}
+			
+			
+			
+			
+			
+			if(successh == true && successv == true){
+				System.out.println("///////////////////////////////////Suffix/////////////////////////////////");
+				return true;
+			}else{
+				System.out.println("----------------------------------Not Suffix-----------------------------");
+				return false;
 			}
 		}
 		
-		int validHorSuffix = nDict.searchPrefix(sbHorizontal, 1, sbHorizontal.length());
-		
-		System.out.println("Horizontal Suffix Output: " + validHorSuffix);
-		// 0. Bad
-		// 1. Prefix
-		// 2. Word 
-		// 3. Prefix & Word 
-		
-		//using StringBuilder, build a string of the current row being checked and check it to the valid prefixes
-		if(validHorSuffix == 1 || validHorSuffix == 2 || validHorSuffix == 3){
-			successh = true;
-		}else{
-			successh = false;
-		}
-		
-		//check vertically
-		
-		StringBuilder sbVertical = new StringBuilder();
-		
-		
-		//can remove one loop, should just use col passed in to account for where it should measure
-		
-		
-		for(int x = 0; x < column; x++){
-			for(int y = 0; y < row; y++){
-				if(crosswordBoard[y][x] != '+' && crosswordBoard[y][x] != '-'){
-						sbVertical.append(crosswordBoard[y][x]);
-				}
-			}
-		}
-		
-		int validVertSuffix = nDict.searchPrefix(sbVertical, 1, sbVertical.length());
-		
-		System.out.println("Vertical Suffix Output: " + validVertSuffix);
-		
-		//using StringBuilder, build a string of the current column being checked and check it to the valid prefixes
-		if(validVertSuffix == 1 || validVertSuffix == 2 || validVertSuffix == 3){
-			successv = true;
-		}else{
-			successv = false;
-		}
-		
-		if(successh == true && successv == true){
-			System.out.println("///////////////////////////////////Suffix/////////////////////////////////");
-			return true;
-		}else{
-			System.out.println("----------------------------------Not Suffix-----------------------------");
-			return false;
-		}
 	}
 	
 	
