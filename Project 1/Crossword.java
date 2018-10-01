@@ -24,7 +24,7 @@ public class Crossword{
 		String inputEntry;
 			
 		//board array
-        char[][] tempBoard;
+        char[][] tempBoard = null;
  
 		try {
 			//declare variables
@@ -72,9 +72,16 @@ public class Crossword{
 	//read objet type (if run with DLB or MyDictionary)
     public static void objectType(String fileName, String fileType){
 		
+		Scanner inputScanner = new Scanner(System.in);
+		
 		//declare variables
 		String tempString = null;
-        Scanner inputScanner = new Scanner(new FileInputStream(fileName));
+		try{
+			inputScanner = new Scanner(new FileInputStream(fileName));
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+        
 		
 		//if the user wants to to run with anything other than DLB, run with MyDictionary
 		if (!(fileType.equals("DLB") || fileType.toLowerCase().equals("dlb"))){
@@ -97,6 +104,7 @@ public class Crossword{
 			nDict.add(tempString);
 			
         }
+				
     }
 	
 	/*
@@ -172,10 +180,14 @@ public class Crossword{
 			}
 		}
 		
-		boolean validHorSuffix = nDict.searchPrefix(sbHorizontal, 0, sbHorizontal.length());
+		int validHorSuffix = nDict.searchPrefix(sbHorizontal, 0, sbHorizontal.length());
+		// 0. Bad
+		// 1. Prefix
+		// 2. Word 
+		// 3. Prefix & Word 
 		
 		//using StringBuilder, build a string of the current row being checked and check it to the valid prefixes
-		if(validHorSuffix){
+		if(validHorSuffix == 1 || validHorSuffix == 2 || validHorSuffix == 3){
 			successh = true;
 		}else{
 			successh = false;
@@ -197,10 +209,10 @@ public class Crossword{
 			}
 		}
 		
-		boolean validVertSuffix = nDict.searchPrefix(sbVertical, 0, sbVertical.length());
+		int validVertSuffix = nDict.searchPrefix(sbVertical, 0, sbVertical.length());
 		
 		//using StringBuilder, build a string of the current column being checked and check it to the valid prefixes
-		if(validVertSuffix){
+		if(validVertSuffix == 1 || validVertSuffix == 2 || validVertSuffix == 3){
 			successv = true;
 		}else{
 			successv = false;
@@ -233,7 +245,7 @@ public class Crossword{
         Scanner inscan = new Scanner(System.in);
 		
 		//generate crossword board
-        crosswordBoard = buildBoard("dict3a.txt");
+        crosswordBoard = buildBoard("test3a.txt");
 		
 		//if the length/width of the board is > 0 (aka the board exists), then build the board
         if (0 < args.length) {
@@ -268,9 +280,9 @@ public class Crossword{
                     System.out.println("Program executing Part 1 of Assignment 1");
 					//attempt to run part 1
                     try {
-                        objectType("dict3a.txt", "");
+                        objectType("test3a.txt", "MyDictionary");
 						//if part 1 fails, catch the error
-                    } catch(IOException e) {
+                    } catch(Exception e) {
                         e.printStackTrace();
                     }
 					
@@ -287,7 +299,7 @@ public class Crossword{
                     try {
                         objectType("dict3a.txt", "DLB");
 						//if part 2 fails, catch the error
-                    } catch(IOException e) {
+                    } catch(Exception e) {
                         e.printStackTrace();
                     }
 					
