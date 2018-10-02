@@ -14,15 +14,15 @@ public class DLB implements DictInterface{
 	//nested DLBNode class, aimed at creating object to reference children and siblings of current node
 	private class DLBNode{
 		//declare variables for child and sibling references
-		private DLBNode child;
-		private DLBNode sibling;
+		private DLBNode childNode;
+		private DLBNode siblingNode;
 		private char value;
 		
 		//generate DLBNode object with child and sibling references
 		public DLBNode(char inputValue){
 			value = inputValue;
-			child = null;
-			sibling = null;
+			childNode = null;
+			siblingNode = null;
 		}
 	}
 	
@@ -50,9 +50,9 @@ public class DLB implements DictInterface{
 				while(current != null){
 					//generate a node value for the current letter being checked
 					if(current.value == currentLetter){
-						if(current.child != null){
+						if(current.childNode != null){
 							//step down to ensure you add to the lowest possible value in the viable list
-							current = current.child;
+							current = current.childNode;
 							break;
 						}else{
 							//stop the loop
@@ -60,8 +60,8 @@ public class DLB implements DictInterface{
 						}
 					}
 					//check siblings if children are not viable
-					if(current.sibling != null){
-						current = current.sibling;
+					if(current.siblingNode != null){
+						current = current.siblingNode;
 					}else{
 						//adjust trigger to end iteration
 						testOrd = 1;
@@ -71,38 +71,38 @@ public class DLB implements DictInterface{
 				//add the value to the list in the appropriate orientation
 				//the node should have no viable children, this part adds it as a sibling to an already existing node in the chain of characters being checked
 				if(testOrd == 1){
-					current.sibling = new DLBNode(currentLetter);
-					current = current.sibling;
+					current.siblingNode = new DLBNode(currentLetter);
+					current = current.siblingNode;
 				}
 			}else{
-				current.child = new DLBNode(currentLetter);
-				current = current.child;
+				current.childNode = new DLBNode(currentLetter);
+				current = current.childNode;
 			}
 		}
 		
 		//check for word endings/spaces
-		if(current.child == null){
+		if(current.childNode == null){
 			
-			//generate new child node that contains a terminating value (*)
-			current.child = new DLBNode('*');
+			//generate new child node that contains a terminating value (|)
+			current.childNode = new DLBNode('|');
 			output = true;
 			
 			return output;
 			
 		}else{
-			current = current.child;
+			current = current.childNode;
 			//do the same as above, but instead of a child add as a sibling to another value existing in that line of characters
 			while(current != null){
 				//avoid duplicate word endings
-				if(current.value == '*'){
+				if(current.value == '|'){
 					
 					return output;
 					
 				}
 				
 				//sibling check
-				if(current.sibling != null){
-					current = current.sibling;
+				if(current.siblingNode != null){
+					current = current.siblingNode;
 				}
 				else{
 					break;
@@ -112,8 +112,8 @@ public class DLB implements DictInterface{
 			
 			if(lineFin == false){
 				
-				//add a * if there is no other * value already present
-				current.sibling = new DLBNode('*');
+				//add a | if there is no other | value already present
+				current.siblingNode = new DLBNode('|');
 				output = true;
 				
 				return output;
@@ -144,19 +144,19 @@ public class DLB implements DictInterface{
 				if(current.value == strBuild.charAt(i)){
 					correctLetter = 1;
 					
-					if(current.child == null){
+					if(current.childNode == null){
 						//null value 
 						return retVal;
 						
 					}else{
 						//increment through the structure to the next value
-						current = current.child;
+						current = current.childNode;
 						break;
 					}
 				}else{
 					//if there are any siblings to check and the letter has failed, check the siblings
-					if(current.sibling != null){
-						current = current.sibling;
+					if(current.siblingNode != null){
+						current = current.siblingNode;
 					}else{
 						//null siblings and children
 						return retVal;
@@ -170,7 +170,7 @@ public class DLB implements DictInterface{
 				while(current != null){
 					
 					//if there's not a star but its still a successful value, return true for a prefix
-					if(current.value != '*'){
+					if(current.value != '|'){
 						successfulPre = true;
 						//if there's a star, its a true word
 					}else{
@@ -178,7 +178,7 @@ public class DLB implements DictInterface{
 					}
 						
 					//check siblings of current node
-					current = current.sibling;
+					current = current.siblingNode;
 				}
 			}
 		}
@@ -224,22 +224,22 @@ public class DLB implements DictInterface{
 					correctLetter = 1;
 				
 					//with no child, the value cannot exist so return a 0 value
-					if(current.child == null){
+					if(current.childNode == null){
 						
 						outVal = 0;
 						
 						return outVal;
 					}else{
 						//otherwise, increment to the next child node and stop this iteration of the loop
-						current = current.child;
+						current = current.childNode;
 						
 						break;
 					}
 				}else{
 					//if the value of the current node doesn't match the value being checked, check if the node's siblings contain the value
-					if(current.sibling != null){
+					if(current.siblingNode != null){
 						//if so, change locations to the sibling
-						current = current.sibling;
+						current = current.siblingNode;
 					}else{
 						//otherwise, reutrn a 0 value
 						outVal = 0; 
@@ -253,8 +253,8 @@ public class DLB implements DictInterface{
 			if(correctLetter == 1 && i == endVal){
 				//while there's a value at current
 				while(current != null){
-					//* denotes the end of a word, so if not a star check if its a prefix
-					if(current.value != '*'){
+					//| denotes the end of a word, so if not a star check if its a prefix
+					if(current.value != '|'){
 						
 						successfulPre = true;
 						
@@ -265,7 +265,7 @@ public class DLB implements DictInterface{
 						
 					}
 					
-					current = current.sibling;
+					current = current.siblingNode;
 					
 				}
 			}

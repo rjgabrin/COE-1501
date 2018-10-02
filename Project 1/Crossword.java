@@ -156,13 +156,14 @@ public class Crossword{
 		- adjust the do-while loop to instead of completing once the value is locked for the first time, run the search program until all values in the array are '26', meaning that the array has checked every possible letter combination for every posssible box
 	*/
 	
+	public static int callNumber = 0; 
 	
 	public static void solve(int col, int row, int tempCount, String [] args){
-		System.out.println("Starting the solve method.");
+		//System.out.println("Starting the solve method.");
 		int nextCol = col;
 		int nextRow = row;
 		//while there are still letters in the alphabet to be tried at the current index
-		while(tempCount < 26){
+		for(int counter = 0; counter < 26; counter++){
 			//System.out.println("In while loop");
 			//System.out.println("tempCount: " + tempCount + ", nextCol: " + nextCol + ", nextRow: " + nextRow);
 						
@@ -170,36 +171,46 @@ public class Crossword{
 			char testChar = alphabet[tempCount];
 			//if the item is a valid suffix, try to solve
 			if(suffixPositive(args, testChar, col, row)){
-				System.out.println("Positive suffix.");
 				
 				//store character in string
 				sbHorizontal[row].append(testChar);
 				sbVertical[col].append(testChar);
 				
+				crosswordBoard[row][col] = testChar;
+				
 				//if the column index equals the board dimension, then move down a row and reset column
 				//set stopper for first iteration success value
-				if(row == boardLength && col == boardLength){
+				if(row == boardLength-1 && col == boardLength-1){
 					System.out.println("A solution has been found!!");
 					if(objType == 'm'){
+						
+						printBoard();
+						
 						System.out.println("MyDictionary implemented, so only one successful value needs to be matched. Goodbye!");
 						System.exit(0);
 					}
+				}else if(col == boardLength-1 && row != boardLength-1){
+					//solve the next index
+					int nextPass = 0;
+					int nextVal = nextRow + 1;
+					
+					solve(nextPass, nextVal, 0, args);
+				}else{
+					int nextPass = nextCol + 1;
+					solve(nextPass, nextRow, 0, args);				
 				}
 				
-				if(nextCol+1 >= boardLength){
-					//solve the next index
-					solve(nextCol = 0, nextRow+1, 0, args);
-					System.out.println(testChar);
-				}else{
-					//if the column is not over and on a new row, solve in the current row
-					solve(nextCol+1, nextRow, 0, args);	
-				}
-			}else{
-				System.out.println("Not a suffix. Increment letter.");
-				//if the letter doesn't count, increment the character value and try to solve with the new character
-				tempCount++;
+				sbHorizontal[row].deleteCharAt(col);
+				sbVertical[col].deleteCharAt(row);
+				
 			}
+			
+			//System.out.println("Backtracking...");
+			callNumber = callNumber -1;
+			
+			tempCount++;
 		}
+		
 		
 		if(sbVertical.length == 0){
 			sbVertical[col].deleteCharAt( (sbVertical.length - 1) );
@@ -245,23 +256,45 @@ public class Crossword{
 		rowSB.append(checkChar);
 		colSB.append(checkChar);
 		
-		System.out.println("COLUMN TEST " + rowSB);
-		System.out.println("ROW TEST " + colSB);
+		//System.out.println("COLUMN TEST " + rowSB);
+		//System.out.println("ROW TEST " + colSB);
 		
 		//split to check for those that have - symbols
-		//String firstHorizontal
-		//String secondHorizontal
+		
+		String [] rowSplit = rowSB.toString().split("-");
+		String [] colSplit = colSB.toString().split("-");
+		
+		if(rowSplit.length > 1){
+			for(int i = 0; i < rowSplit.length; i++){
+				StringBuilder temp = new StringBuilder(rowSplit[i]);
 				
-		//String firstVertical
-		//String secondVertical
+				int result = myDict.searchPrefix(temp);
+	
+			}
+		}
+		
+		if(colSplit.length > 1){
+			for(int j = 0; j < colSplit.length; j++){
+				StringBuilder temp = new StringBuilder(colSplit[j]);
+				
+				int result = myDict.searchPrefix(temp);
+				
+				if(result == 0){
+					return false;
+				}
+			}
+		}
+		
 		
 		
 		//Put that through the searchPrefix
 		int horizontalOut = myDict.searchPrefix(rowSB);
 		int verticalOut = myDict.searchPrefix(colSB);
 		
-		System.out.println("Horizontal out TESTING " + horizontalOut);
-		System.out.println("Vertical out TESTING " + verticalOut);
+		//System.out.println("Horizontal out TESTING " + horizontalOut);
+		//System.out.println("Vertical out TESTING " + verticalOut);
+		
+		System.out.println(rowSB.length());
 		
 		//remove the last character form the StringBuilder
 		rowSB.deleteCharAt(rowSB.length()-1);
