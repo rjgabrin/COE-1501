@@ -169,10 +169,10 @@ public class DLB implements DictInterface{
 				//continue searching while there is another node
 				while(current != null){
 					
-					//if there's not a star but its still a successful value, return true for a prefix
+					//if there's not a bar but its still a successful value, return true for a prefix
 					if(current.value != '|'){
 						successfulPre = true;
-						//if there's a star, its a true word
+						//if there's a bar, its a true word
 					}else{
 						successfulWord = true;
 					}
@@ -253,14 +253,14 @@ public class DLB implements DictInterface{
 			if(correctLetter == 1 && i == endVal){
 				//while there's a value at current
 				while(current != null){
-					//| denotes the end of a word, so if not a star check if its a prefix
+					//| denotes the end of a word, so if not a bar check if its a prefix
 					if(current.value != '|'){
 						
 						successfulPre = true;
 						
 					}else{
 						
-						//if there's a star, check if the word is viable as the star would indicate that the word has ended
+						//if there's a bar, check if the word is viable as the bar would indicate that the word has ended
 						successfulWord = true;
 						
 					}
