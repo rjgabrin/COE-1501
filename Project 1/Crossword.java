@@ -14,6 +14,7 @@ public class Crossword{
 	public static StringBuilder [] sbHorizontal;
 	public static StringBuilder [] sbVertical;
 	public static char objType;
+	public static int runProject;
 	
 	//declration of alphabet array to be used to check values at each index
 	public static char [] alphabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
@@ -80,18 +81,19 @@ public class Crossword{
     }
 	
 	
+	
 	//read objet type (if run with DLB or MyDictionary)
-    public static MyDictionary objectType(String fileName, String fileType){
+    public static DictInterface objectType(String fileName, String fileType){
 		
+		//create scanner and myDictionary instance
 		Scanner inputScanner = new Scanner(System.in);
-		MyDictionary myDict = new MyDictionary();
 		
-		//declare variables
 		String tempString = null;
 		try{
 			//read in the file
 			inputScanner = new Scanner(new FileInputStream(fileName));
 		}catch(IOException e){
+			//if this fails, catch the error
 			System.out.println("Object Type Catch.");
 			e.printStackTrace();
 		}
@@ -100,32 +102,41 @@ public class Crossword{
 		//if the user wants to to run with anything other than DLB, run with MyDictionary
 		if (!(fileType.equals("DLB") || fileType.toLowerCase().equals("dlb"))){
 			
-			myDict = new MyDictionary();
+			//run with MyDictionary
+			DictInterface myDict = new MyDictionary();
 			objType = 'm';
+			runProject = 1;
+			
+			//while there's more input for the scanner to continue adding to the structure
+			while (inputScanner.hasNext()){
+				
+				//ccontinue adding values
+				tempString = inputScanner.nextLine();
+				myDict.add(tempString);
+			}
+			
+			return myDict;
 
 		} else {
 			
 			//otherwise, run with DLB
-		    //DLB myDict = new DLB();
-			myDict = new MyDictionary();
+		    DictInterface myDict = new DLB();
+			//MyDictionary myDict = new MyDictionary();
 			objType = 'd';
+			runProject = 2;
 
-		}
-		
-		//while there's more input for the scanner to continue adding to the structure
-		while (inputScanner.hasNext()){
-			
-			//ccontinue adding values
-			tempString = inputScanner.nextLine();
-			System.out.println(" " + tempString);
-			myDict = new MyDictionary();
-			myDict.add(tempString);
-			
-        }
-		
-		return myDict;
+			//while there's more input for the scanner to continue adding to the structure
+			while (inputScanner.hasNext()){
 				
+				//ccontinue adding values
+				tempString = inputScanner.nextLine();
+				myDict.add(tempString);
+			}
+			
+			return myDict;
+		}				
     }
+	
 	
 	/*
 		STRUCTURE
@@ -146,21 +157,19 @@ public class Crossword{
 	*/
 	
 	
-	public static void solve(int col, int row, int tempCount){
+	public static void solve(int col, int row, int tempCount, String [] args){
 		System.out.println("Starting the solve method.");
 		int nextCol = col;
 		int nextRow = row;
 		//while there are still letters in the alphabet to be tried at the current index
 		while(tempCount < 26){
-			System.out.println("In while loop");
-			System.out.println("tempCount: " + tempCount + ", nextCol: " + nextCol + ", nextRow: " + nextRow);
-			
-			//printBoard(sbHorizontal[row], sbVertical[col]);
-			
+			//System.out.println("In while loop");
+			//System.out.println("tempCount: " + tempCount + ", nextCol: " + nextCol + ", nextRow: " + nextRow);
+						
 			//get the vcharacter to be attempted
 			char testChar = alphabet[tempCount];
 			//if the item is a valid suffix, try to solve
-			if(suffixPositive(testChar, col, row)){
+			if(suffixPositive(args, testChar, col, row)){
 				System.out.println("Positive suffix.");
 				
 				//store character in string
@@ -170,19 +179,20 @@ public class Crossword{
 				//if the column index equals the board dimension, then move down a row and reset column
 				//set stopper for first iteration success value
 				if(row == boardLength && col == boardLength){
-					System.out.println("A solution has been found! Congratulations, goodbye!");
+					System.out.println("A solution has been found!!");
 					if(objType == 'm'){
+						System.out.println("MyDictionary implemented, so only one successful value needs to be matched. Goodbye!");
 						System.exit(0);
 					}
 				}
 				
 				if(nextCol+1 >= boardLength){
 					//solve the next index
-					solve(nextCol = 0, nextRow+1, tempCount);
+					solve(nextCol = 0, nextRow+1, 0, args);
 					System.out.println(testChar);
 				}else{
 					//if the column is not over and on a new row, solve in the current row
-					solve(nextCol+1, nextRow, tempCount);	
+					solve(nextCol+1, nextRow, 0, args);	
 				}
 			}else{
 				System.out.println("Not a suffix. Increment letter.");
@@ -203,13 +213,12 @@ public class Crossword{
 	}
 	
 	
-	public static boolean suffixPositive(char checkChar, int column, int row){
+	public static boolean suffixPositive(String [] args, char checkChar, int column, int row){
 		
 		// 0. Bad
 		// 1. Prefix
 		// 2. Word 
 		// 3. Prefix & Word 
-		
 		
 		//build the stringbuilder
 		//append the charcter
@@ -223,18 +232,14 @@ public class Crossword{
 		//if (2) && col < maxCols-1 return false
 		//if (2) && col == max return true
 		//if (3) return true
-			
-		//MyDictionary dic = new MyDictionary();
-		//dic.add("test");
-			
-		//System.out.println("TEST Searchprefix : " + dic.searchPrefix(new StringBuilder("test")));
-		//return false
 		
 		//build the StringBuilders
 		StringBuilder rowSB = sbHorizontal[row];
 		StringBuilder colSB = sbVertical[column];
 		
-		MyDictionary myDict = new MyDictionary();
+		DictInterface myDict = new MyDictionary();
+
+		myDict = objectType("dict8.txt", args[1]);
 		
 		//append the character
 		rowSB.append(checkChar);
@@ -243,6 +248,7 @@ public class Crossword{
 		System.out.println("COLUMN TEST " + rowSB);
 		System.out.println("ROW TEST " + colSB);
 		
+		//split to check for those that have - symbols
 		//String firstHorizontal
 		//String secondHorizontal
 				
@@ -325,14 +331,13 @@ public class Crossword{
 		/*
 			- Ensure the crosswordBoard generates properly
 				- if not, quit the program
-			- Prompt user for how they want to run the program
-				- Account for invalid entries
+			- Based on user input at runtime, choose how to run
 				- if 1 given, run Part 1
 				- if 2 given, run Part 2
 				- if 0 given, quit program
 		*/
 		
-		MyDictionary myDict = new MyDictionary();
+		DictInterface myDict = new MyDictionary();
 		
 		try{
 			File inDict = new File("dict8.txt");
@@ -346,18 +351,7 @@ public class Crossword{
 			
 			Scanner sc = new Scanner(inDict);
 			
-			myDict = objectType(args[0], args[1]);
-			
-			int i = 0;
-			//read in data for the dictionary
-			System.out.println("Starting while loop to build dictionary.");
-			while (sc.hasNextLine()) {
-				//set dictionary values
-				//System.out.println(sc.nextLine());
-				myDict.add(sc.nextLine());
-				i++;
-			}			
-			
+			myDict = objectType("dict8.txt", args[1]);						
 		}catch(FileNotFoundException e){
 			
 			System.out.println("Scan the dictionary catch.");
@@ -390,7 +384,6 @@ public class Crossword{
 		System.out.println("Successfully Built Board");
 
 		//set integer to be checked for action
-        int runProject = Integer.parseInt(args[2]);
 		System.out.println("Starting Do with " + runProject);
 		//run this program while the entry is not 0
         do {
@@ -405,7 +398,7 @@ public class Crossword{
 				System.out.println("Program executing Part 1 of Assignment 1");
 				//attempt to run part 1
 				try {
-					myDict = objectType(args[0],args[1]);
+					myDict = objectType("dict8.txt",args[1]);
 					System.out.println(args[1]);
 					//if part 1 fails, catch the error
 				} catch(Exception e) {
@@ -416,7 +409,7 @@ public class Crossword{
 				System.out.println("******************SOLVING PART 1******************");
 				
 				//solve part 1 starting at index 0,0 of the wordsearch grid with a count of 0 for the alphabet array
-				solve(0, 0, 0);
+				solve(0, 0, 0, args);
 				
 				System.out.println("******************SOLVED PART 1******************");
 				//run the program with part 2
@@ -426,7 +419,7 @@ public class Crossword{
 				System.out.println("Program executing Part 2 of Assignment 1");
 				//attempt to run part 2
 				try {
-					objectType(args[0], args[1]);
+					objectType("dict8.txt", args[1]);
 					//if part 2 fails, catch the error
 				} catch(Exception e) {
 					System.out.println("Object Type of DLB catch.");
@@ -436,7 +429,7 @@ public class Crossword{
 				System.out.println("******************SOLVING PART 2******************");
 				
 				//solve part 2 starting at index 0,0 of the wordsearch grid with a count of 0 for the alphabet array
-				solve(0, 0, 0);
+				solve(0, 0, 0, args);
 				
 				System.out.println("******************SOLVED PART 2******************");
 				break;

@@ -3,106 +3,293 @@
 //Email: rjg69@pitt.edu
 //DLB.java - Project 1 Part 2
 
-public class DLBNode implements DictInterface{
-		
-	char nodeValue;
-	DLBNode nodeChild;
-	DLBNode nodeSibling;
+import java.util.*;
+import java.lang.*;
 
-	//constructors for DLBNode Objects
-	public DLBNode(){
-		//null object
-		this.nodeValue = null;
-		this.nodeChild = null;
-		this.nodeSibling = null;
+public class DLB implements DictInterface{
+	
+	//declare static node to start with and build from
+	private DLBNode nodes;
+	
+	//nested DLBNode class, aimed at creating object to reference children and siblings of current node
+	private class DLBNode{
+		//declare variables for child and sibling references
+		private DLBNode child;
+		private DLBNode sibling;
+		private char value;
+		
+		//generate DLBNode object with child and sibling references
+		public DLBNode(char inputValue){
+			value = inputValue;
+			child = null;
+			sibling = null;
+		}
 	}
 	
-	public DLBNode(char value){
-		//object with value
-		this.nodeValue = value;
-		this.nodeChild = null;
-		this.nodeSibling = null;
+	//instantiate a DLB object
+	public DLB(){
+		//generate the root node with a terminating value
+		nodes = new DLBNode('/');
 	}
 	
-	//add new node to structure
-	public boolean add(String wordInput){
+	//add function implemented from the DictInterface
+	public boolean add(String value){
 		//declare variables
-		String temp = wordInput.concat("$");
-		DLBNode currNode = rootNode;
+		int testOrd = 0;
+		DLBNode current = nodes;
+		boolean lineFin = false;
+		boolean output = false;
 		
-		int i = 0;
-		//traverse and add new child to the node
-		for(i = 0; i < temp.length(); i++){
-			currNode = addNewChild(currNode, temp.charAt(i));
-		}
-		
-		return currNode.created;
-	}
-	
-	//append new node to the structure
-	private DLBNode addNewChild(DLBNode currNode, char currChar){
-		//if a child exists, add a sibling to the child
-		if(currNode.child != null){
-			return addNewSibling(currNode.child, currChar);
-		}else{
-			//if no child exists, add new node as a child
-			currNode.child = new DLBNode(currChar);
-			currNode.child.createNew = true;
+		//increment through the string to add the letter at its appropriate location
+		for(int i = 0; i < value.length(); i++){
+			//node to house the current letter value being checked
+			char currentLetter = value.charAt(i);
 			
-			return currNode.child;
+			if(testOrd == 0){
+				//checks to see if the list of letters being checked alread exists in the structure to avoid double-building
+				while(current != null){
+					//generate a node value for the current letter being checked
+					if(current.value == currentLetter){
+						if(current.child != null){
+							//step down to ensure you add to the lowest possible value in the viable list
+							current = current.child;
+							break;
+						}else{
+							//stop the loop
+							break;
+						}
+					}
+					//check siblings if children are not viable
+					if(current.sibling != null){
+						current = current.sibling;
+					}else{
+						//adjust trigger to end iteration
+						testOrd = 1;
+						break;
+					}
+				}
+				//add the value to the list in the appropriate orientation
+				//the node should have no viable children, this part adds it as a sibling to an already existing node in the chain of characters being checked
+				if(testOrd == 1){
+					current.sibling = new DLBNode(currentLetter);
+					current = current.sibling;
+				}
+			}else{
+				current.child = new DLBNode(currentLetter);
+				current = current.child;
+			}
 		}
+		
+		//check for word endings/spaces
+		if(current.child == null){
+			
+			//generate new child node that contains a terminating value (*)
+			current.child = new DLBNode('*');
+			output = true;
+			
+			return output;
+			
+		}else{
+			current = current.child;
+			//do the same as above, but instead of a child add as a sibling to another value existing in that line of characters
+			while(current != null){
+				//avoid duplicate word endings
+				if(current.value == '*'){
+					
+					return output;
+					
+				}
+				
+				//sibling check
+				if(current.sibling != null){
+					current = current.sibling;
+				}
+				else{
+					break;
+				}
+					
+			}
+			
+			if(lineFin == false){
+				
+				//add a * if there is no other * value already present
+				current.sibling = new DLBNode('*');
+				output = true;
+				
+				return output;
+			}
+		}
+		
+		return output;
 	}
 	
-	//search for the validity of the prefix
-	public int searchPrefix(StringBuilder s){
-		
+
+	//check for prefix/word in the given stringbuilder
+	public int searchPrefix(StringBuilder strBuild){
 		//declare variables
-		DLBNode currNode = rootNode;
-		int i = 0;
+		boolean successfulWord = false;
+		boolean successfulPre = false;
+		int retVal = 0;
+		DLBNode current = nodes;
+		int strLength = strBuild.length();
 		
-		//traverse the structure
-		while(currNode != null && i < s.length()){
-			currNode = findChildren(currNode, s.charAt(i));
-			i = i + 1;
-		}
+		//iterate through the entire string
+		for(int i = 0; i < strLength; i++){
+			int correctLetter = 0;
 		
-		if(currNode != null){
-			currNode = findChild(currNode, '$');
-			//if the node is the last one and has no more children, it's a prefix
-			if(currNode == null){
-				return 1;
+			//while there's still a letter to check
+			while(current != null){
+				
+				//if the current letter is available/possible in the list, step to the next value
+				if(current.value == strBuild.charAt(i)){
+					correctLetter = 1;
+					
+					if(current.child == null){
+						//null value 
+						return retVal;
+						
+					}else{
+						//increment through the structure to the next value
+						current = current.child;
+						break;
+					}
+				}else{
+					//if there are any siblings to check and the letter has failed, check the siblings
+					if(current.sibling != null){
+						current = current.sibling;
+					}else{
+						//null siblings and children
+						return retVal;
+					}
+				}
 			}
 			
-			//if the node has no silblings and isn't null, you've reached a word
-			if(currNode.sibling == null){
-				return 2;
+			//if the letter is viable and the value is not the end of the row
+			if(correctLetter == 1 && i == (strBuild.length() - 1)){
+				//continue searching while there is another node
+				while(current != null){
+					
+					//if there's not a star but its still a successful value, return true for a prefix
+					if(current.value != '*'){
+						successfulPre = true;
+						//if there's a star, its a true word
+					}else{
+						successfulWord = true;
+					}
+						
+					//check siblings of current node
+					current = current.sibling;
+				}
 			}
-			return 3;
-		}else{
-			return 0;
 		}
 		
-		//error out wrong search prefix
-		public int searchPrefix(StringBuilder s, int start, int end){
-			throw new Exception("The operation failed to execute, the method is unsupported.");
+		//Set retVal to the necessary value to alert of status.
+		//1. Prefix
+		//2. Word 
+		//3. Prefix & word
+		if(successfulPre && successfulWord){
+			
+			retVal = 3;
+
+		}else if(successfulPre){
+			
+			retVal = 1;
+			
+		}else if(successfulWord){
+			
+			retVal = 2;
+			
 		}
 		
-		//search for the sibling of the node to be used in the previous functions
-		private DLBNode findSibling(DLBNode currNode, char tempChar){
-			while(currNode != null && currNode.value != tempChar){
-				currNode = currNode.sibling;
+		//return retVal
+		return retVal;
+	}
+
+	//Search the DLB for a given StringBuilder between two specific locations
+	public int searchPrefix(StringBuilder strBuild, int startVal, int endVal){
+		//Flags for finding a word and finding a prefix
+		boolean successfulWord = false;
+		boolean successfulPre = false;
+		int outVal = 0;
+		DLBNode current = nodes;
+		
+		for(int i = startVal; i <= endVal; i++){
+			int correctLetter = 0;
+			
+			//increment through list, looking for letter until a null value is found
+			while(current != null){
+				
+				//increment to next value in structure if the letter exists at a child node
+				if(current.value == strBuild.charAt(i)){
+					correctLetter = 1;
+				
+					//with no child, the value cannot exist so return a 0 value
+					if(current.child == null){
+						
+						outVal = 0;
+						
+						return outVal;
+					}else{
+						//otherwise, increment to the next child node and stop this iteration of the loop
+						current = current.child;
+						
+						break;
+					}
+				}else{
+					//if the value of the current node doesn't match the value being checked, check if the node's siblings contain the value
+					if(current.sibling != null){
+						//if so, change locations to the sibling
+						current = current.sibling;
+					}else{
+						//otherwise, reutrn a 0 value
+						outVal = 0; 
+						
+						return outVal;
+					}
+				}
 			}
 			
-			return currNode;
+			//once at the end of hte stringbuilder object, check for prefix or value
+			if(correctLetter == 1 && i == endVal){
+				//while there's a value at current
+				while(current != null){
+					//* denotes the end of a word, so if not a star check if its a prefix
+					if(current.value != '*'){
+						
+						successfulPre = true;
+						
+					}else{
+						
+						//if there's a star, check if the word is viable as the star would indicate that the word has ended
+						successfulWord = true;
+						
+					}
+					
+					current = current.sibling;
+					
+				}
+			}
 		}
 		
-		//search for the children of the node to be used in the previous functions
-		private findChild(DLBNode currNode, char tempChar){
-			if(currNode.child != null && currNode.child.value == tempChar){
-				return currNode.child;
-			}
+		//Set outVal to the necessary value to alert of status.
+		//1. Prefix
+		//2. Word 
+		//3. Prefix & word		
+		if(successfulPre && successfulWord){
 			
-			return findSibling(currNode.child, tempChar);
+			outVal = 3;
+						
+		}else if(successfulPre){
+			
+			outVal = 1;
+						
+		}else if(successfulWord){
+			
+			outVal = 2;
+		
 		}
+		
+		//return outVal
+		return outVal;
 	}
 }
