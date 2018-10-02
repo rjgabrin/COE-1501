@@ -9,7 +9,6 @@ import java.io.*;
 
 public class Crossword{
 	//create new DictInterface object
-    public static MyDictionary nDict = new MyDictionary();
 	public static int boardLength = 0;
 	public static char[][] crosswordBoard;
 	public static StringBuilder [] sbHorizontal;
@@ -63,11 +62,11 @@ public class Crossword{
                 }
             }
 			//display board data
-            for (int i=0; i<(boardLength); i++){
-				for(int j = 0; j < boardLength; j++){
-					System.out.println(tempBoard[j][i]);
-				}
-            }
+            //for (int i=0; i<(boardLength); i++){
+			//	for(int j = 0; j < boardLength; j++){
+			//		System.out.println(tempBoard[j][i]);
+			//	}
+            //}
             
 			//close file
 			fr.close();
@@ -82,13 +81,15 @@ public class Crossword{
 	
 	
 	//read objet type (if run with DLB or MyDictionary)
-    public static void objectType(String fileName, String fileType){
+    public static MyDictionary objectType(String fileName, String fileType){
 		
 		Scanner inputScanner = new Scanner(System.in);
+		MyDictionary myDict = new MyDictionary();
 		
 		//declare variables
 		String tempString = null;
 		try{
+			//read in the file
 			inputScanner = new Scanner(new FileInputStream(fileName));
 		}catch(IOException e){
 			System.out.println("Object Type Catch.");
@@ -99,14 +100,14 @@ public class Crossword{
 		//if the user wants to to run with anything other than DLB, run with MyDictionary
 		if (!(fileType.equals("DLB") || fileType.toLowerCase().equals("dlb"))){
 			
-			nDict = new MyDictionary();
+			myDict = new MyDictionary();
 			objType = 'm';
 
 		} else {
 			
 			//otherwise, run with DLB
-			//nDict = new DLB();
-			nDict = new MyDictionary();
+		    //DLB myDict = new DLB();
+			myDict = new MyDictionary();
 			objType = 'd';
 
 		}
@@ -116,9 +117,13 @@ public class Crossword{
 			
 			//ccontinue adding values
 			tempString = inputScanner.nextLine();
-			nDict.add(tempString);
+			System.out.println(" " + tempString);
+			myDict = new MyDictionary();
+			myDict.add(tempString);
 			
         }
+		
+		return myDict;
 				
     }
 	
@@ -200,146 +205,101 @@ public class Crossword{
 	
 	public static boolean suffixPositive(char checkChar, int column, int row){
 		
-		boolean successh = false;
-		boolean successv = false;
+		// 0. Bad
+		// 1. Prefix
+		// 2. Word 
+		// 3. Prefix & Word 
 		
-		//if it's the end of the column or row, it has to check for the values to make a word
-		if(column == (boardLength-1) || row == (boardLength-1)){
-			//check horizontally
-			if(sbHorizontal[row] == null){
-				sbHorizontal[row] = new StringBuilder();
-			}
-			
-			sbHorizontal[row].append(checkChar);
-			
-			int validHorSuffix = nDict.searchPrefix(sbHorizontal[row]);
-			
-			System.out.println("Temp Horizontal: " + sbHorizontal[row]);
-			
-			int horizontalRemove = sbHorizontal[row].length() - 1;
-			
-			sbHorizontal[row].deleteCharAt(horizontalRemove);
-			
-			System.out.println("Horizontal Suffix Output: " + validHorSuffix);
-			// 0. Bad
-			// 1. Prefix
-			// 2. Word 
-			// 3. Prefix & Word 
-			
-			//using StringBuilder, build a string of the current row being checked and check it to the valid prefixes
-			if(validHorSuffix == 2 || validHorSuffix == 3){
-				successh = true;
-			}else{
-				successh = false;
-			}
-			
-			//check vertically
-			if(sbHorizontal[row] == null){
-				sbVertical[column] = new StringBuilder();
-			}
-			
-			sbVertical[column].append(checkChar);
-			
-			int validVertSuffix = nDict.searchPrefix(sbVertical[column]);
-			
-			System.out.println("Temp Vertical: " + sbVertical[column]);
-			
-			int verticalRemove = sbVertical[column].length() - 1;
-			
-			sbVertical[column].deleteCharAt(verticalRemove);
-			
-			System.out.println("Vertical Suffix Output: " + validVertSuffix);
-			
-			//using StringBuilder, build a string of the current column being checked and check it to the valid prefixes
-			if(validVertSuffix == 2 || validVertSuffix == 3){
-				successv = true;
-			}else{
-				successv = false;
-			}
-			
-			if(successh == true && successv == true){
-				System.out.println("///////////////////////////////////Suffix/////////////////////////////////");
-				return true;
-			}else{
-				System.out.println("----------------------------------Not Suffix-----------------------------");
-				return false;
-			}
 		
-		//if it isn't the end of a column or row, need to check for prefix or word
-		}else{ //if(sbHorizontal[row].length() > 0 || sbVertical[row].length() > 0){
-			//check horizontally
-			System.out.println("Else");
-			if(sbHorizontal[row] == null){
-				sbHorizontal[row] = new StringBuilder();
-			}
+		//build the stringbuilder
+		//append the charcter
+		//searchPrefix
+		//remove the character
+		//if (0) return false
+		//if (1) && row < maxRows-1 return true
+		//if (1) && col < maxCols-1 return true
+		//if (2) && row < maxRows-1 return false
+		//if (2) && row == max return true
+		//if (2) && col < maxCols-1 return false
+		//if (2) && col == max return true
+		//if (3) return true
 			
-			sbHorizontal[row].append(checkChar);
+		//MyDictionary dic = new MyDictionary();
+		//dic.add("test");
 			
-			int validHorSuffix = nDict.searchPrefix(sbHorizontal[row]);
-			//for(StringBuilder s : sbHorizontal[row]) System.out.println(s.toString());
-			System.out.println("prefix: " + sbHorizontal[row].toString());
-			System.out.println("nDict: " + nDict.searchPrefix(sbHorizontal[row]) + ", validHorSuffix: " + validHorSuffix);
+		//System.out.println("TEST Searchprefix : " + dic.searchPrefix(new StringBuilder("test")));
+		//return false
+		
+		//build the StringBuilders
+		StringBuilder rowSB = sbHorizontal[row];
+		StringBuilder colSB = sbVertical[column];
+		
+		MyDictionary myDict = new MyDictionary();
+		
+		//append the character
+		rowSB.append(checkChar);
+		colSB.append(checkChar);
+		
+		System.out.println("COLUMN TEST " + rowSB);
+		System.out.println("ROW TEST " + colSB);
+		
+		//String firstHorizontal
+		//String secondHorizontal
+				
+		//String firstVertical
+		//String secondVertical
+		
+		
+		//Put that through the searchPrefix
+		int horizontalOut = myDict.searchPrefix(rowSB);
+		int verticalOut = myDict.searchPrefix(colSB);
+		
+		System.out.println("Horizontal out TESTING " + horizontalOut);
+		System.out.println("Vertical out TESTING " + verticalOut);
+		
+		//remove the last character form the StringBuilder
+		rowSB.deleteCharAt(rowSB.length()-1);
+		colSB.deleteCharAt(colSB.length()-1);
 			
-			System.out.println("Temp Horizontal: " + sbHorizontal[row]);
-			
-			int horizontalRemove = sbHorizontal[row].length() - 1;
-			
-			//System.out.println("Index: " + horizontalRemove);
-			
-			sbHorizontal[row].deleteCharAt(horizontalRemove);
-			
-			System.out.println("Horizontal Suffix Output: " + validHorSuffix);
-			// 0. Bad
-			// 1. Prefix
-			// 2. Word 
-			// 3. Prefix & Word 
-			
-			//using StringBuilder, build a string of the current row being checked and check it to the valid prefixes
-			if(validHorSuffix == 1 || validHorSuffix == 3){
-				successh = true;
-			}else{
-				successh = false;
-			}
-			
-			//check vertically
-			if(sbHorizontal[row] == null){
-				sbVertical[column] = new StringBuilder();
-			}
-			
-			sbVertical[column].append(checkChar);
-			
-			int validVertSuffix = nDict.searchPrefix(sbVertical[column]);
-			
-			System.out.println("Temp Vertical: " + sbVertical[column]);
-			
-			int verticalRemove = sbVertical[column].length() - 1;
-			
-			sbVertical[column].deleteCharAt(verticalRemove);
-			
-			System.out.println("Vertical Suffix Output: " + validVertSuffix);
-			
-			//using StringBuilder, build a string of the current column being checked and check it to the valid prefixes
-			if(validVertSuffix == 1 || validVertSuffix == 3){
-				successv = true;
-			}else{
-				successv = false;
-			}
-			
-			
-			if(successh == true && successv == true){
-				System.out.println("///////////////////////////////////Suffix/////////////////////////////////");
-				return true;
-			}else{
-				System.out.println("----------------------------------Not Suffix-----------------------------");
-				return false;
-			}
-		}//else{
-		//	return true;
-		//}
+		//store horizontal and vertical validity
+		boolean verticalSuc = false;
+		boolean horizontalSuc = false;
+		
+		//logic to determine validity
+		if(rowSB.length() < boardLength && verticalOut == 1){
+			verticalSuc = true;
+		}
+		
+		if(rowSB.length() == boardLength && verticalOut == 2){
+			verticalSuc = true;
+		}
+		
+		if(verticalOut == 3){
+			verticalSuc = true;
+		}
+		
+		if(colSB.length() < boardLength && horizontalOut == 1){
+			horizontalSuc = true;
+		}
+		
+		if(colSB.length() == boardLength && horizontalOut == 2){
+			horizontalSuc = true;
+		}
+		
+		if(horizontalOut == 3){
+			horizontalSuc = true;
+		}
+		
+		if(verticalSuc == true && horizontalSuc == true){
+			return true;
+		}else{
+			return false;
+		}
 		
 	}
 	
 	public static void printBoard(StringBuilder horizontal, StringBuilder vertical){
+		
 		
 		for(int i = 0; i < sbHorizontal.length; i++){
 			System.out.println("Horizontal SB: " + horizontal);
@@ -350,6 +310,13 @@ public class Crossword{
 		}
 		
 	} 
+	
+	public static void printBoard(){
+		for(int i = 0; i < boardLength; i++){
+			System.out.println(sbHorizontal[i]);
+		}
+
+	}
 	
 	
 	//run the script
@@ -365,22 +332,7 @@ public class Crossword{
 				- if 0 given, quit program
 		*/
 		
-		//create new scanner
-        Scanner inscan = new Scanner(System.in);		
-		System.out.println("inscan build successfully.");
-		
-		//if the length/width of the board is > 0 (aka the board exists), then build the board
-        if (0 < args.length) {
-			//build crossword board
-            crosswordBoard = buildBoard(args[0]);
-            if (crosswordBoard == null){
-				//exit the program if there is not board to be built/used
-                System.exit(0);
-            }
-        } else {
-			//if the corsswordBoard errors out, end the program
-            System.exit(0);
-        }
+		MyDictionary myDict = new MyDictionary();
 		
 		try{
 			File inDict = new File("dict8.txt");
@@ -394,24 +346,40 @@ public class Crossword{
 			
 			Scanner sc = new Scanner(inDict);
 			
+			myDict = objectType(args[0], args[1]);
 			
 			int i = 0;
 			//read in data for the dictionary
 			System.out.println("Starting while loop to build dictionary.");
-			while (sc.hasNext()) {
+			while (sc.hasNextLine()) {
 				//set dictionary values
 				//System.out.println(sc.nextLine());
-				nDict.add(sc.nextLine());
+				myDict.add(sc.nextLine());
 				i++;
 			}			
 			
-			sc.close();
 		}catch(FileNotFoundException e){
 			
 			System.out.println("Scan the dictionary catch.");
 			e.printStackTrace();
 			
 		}
+		
+		//create new scanner
+        Scanner inscan = new Scanner(System.in);		
+		System.out.println("inscan build successfully.");
+		//if the length/width of the board is > 0 (aka the board exists), then build the board
+        if (0 < args.length) {
+			//build crossword board
+            crosswordBoard = buildBoard(args[0]);
+            if (crosswordBoard == null){
+				//exit the program if there is not board to be built/used
+                System.exit(0);
+            }
+        } else {
+			//if the corsswordBoard errors out, end the program
+            System.exit(0);
+        }
 		
 		if (crosswordBoard == null){
 			System.out.println("Crossword Board Never made.");
@@ -422,72 +390,64 @@ public class Crossword{
 		System.out.println("Successfully Built Board");
 
 		//set integer to be checked for action
-        int runProject = -1;
-		
+        int runProject = Integer.parseInt(args[2]);
+		System.out.println("Starting Do with " + runProject);
 		//run this program while the entry is not 0
         do {
 			//prompt user for how they would like to run the program
-            System.out.println("Would you like to run part '1' or '2' of Assignment 1? ('0' to exit)");
-            if(inscan.hasNextInt()){
-				//read next integer to determine which part is to be run
-                runProject = inscan.nextInt();
-                if (runProject == 0) {
-					
-					//exit progam
-                    System.out.println("Goodbye.");
-					//run the program with part 1
-                } else if (runProject == 1) {
-					
-                    System.out.println("Program executing Part 1 of Assignment 1");
-					//attempt to run part 1
-                    try {
-                        objectType(args[0], "MyDictionary");
-						System.out.println("MyDictionary");
-						//if part 1 fails, catch the error
-                    } catch(Exception e) {
-						System.out.println("Object Type of MyDictionary catch.");
-                        e.printStackTrace();
-                    }
-					
-					System.out.println("******************SOLVING PART 1******************");
-					
-					//solve part 1 starting at index 0,0 of the wordsearch grid with a count of 0 for the alphabet array
-                    solve(0, 0, 0);
-					
-					System.out.println("******************SOLVED PART 1******************");
-					//run the program with part 2
-               } else if (runProject == 2) {
-				   //alert user
-                    System.out.println("Program executing Part 2 of Assignment 1");
-					//attempt to run part 2
-                    try {
-                        objectType(args[0], "DLB");
-						//if part 2 fails, catch the error
-                    } catch(Exception e) {
-						System.out.println("Object Type of DLB catch.");
-                        e.printStackTrace();
-                    }
-					
-					System.out.println("******************SOLVING PART 2******************");
-					
-					//solve part 2 starting at index 0,0 of the wordsearch grid with a count of 0 for the alphabet array
-                    solve(0, 0, 0);
-					
-					System.out.println("******************SOLVED PART 2******************");
-					
-					
-                } else {
-                    System.out.println("Invalid entry.");
-					while((runProject != 1) && (runProject != 2) && (runProject != 0)){
-						System.out.println("Please enter either 1 to run Part 1 or 2 to run Part 2. Enter 0 to quit. Invalid entries will attempt another input.");
-					}
-                }
+			//read next integer to determine which part is to be run
+			if (runProject == 0) {
+				//exit progam
+				System.out.println("Goodbye.");
+				//run the program with part 1
+			} else if (runProject == 1) {
+				
+				System.out.println("Program executing Part 1 of Assignment 1");
+				//attempt to run part 1
+				try {
+					myDict = objectType(args[0],args[1]);
+					System.out.println(args[1]);
+					//if part 1 fails, catch the error
+				} catch(Exception e) {
+					System.out.println("Object Type of MyDictionary catch.");
+					e.printStackTrace();
+				}
+				
+				System.out.println("******************SOLVING PART 1******************");
+				
+				//solve part 1 starting at index 0,0 of the wordsearch grid with a count of 0 for the alphabet array
+				solve(0, 0, 0);
+				
+				System.out.println("******************SOLVED PART 1******************");
+				//run the program with part 2
+				break;
+			} else if (runProject == 2) {
+			   //alert user
+				System.out.println("Program executing Part 2 of Assignment 1");
+				//attempt to run part 2
+				try {
+					objectType(args[0], args[1]);
+					//if part 2 fails, catch the error
+				} catch(Exception e) {
+					System.out.println("Object Type of DLB catch.");
+					e.printStackTrace();
+				}
+				
+				System.out.println("******************SOLVING PART 2******************");
+				
+				//solve part 2 starting at index 0,0 of the wordsearch grid with a count of 0 for the alphabet array
+				solve(0, 0, 0);
+				
+				System.out.println("******************SOLVED PART 2******************");
+				break;
+
              }else{
                 System.out.println("Invalid entry.");
 					while((runProject != 1) && (runProject != 2) && (runProject != 0)){
 						System.out.println("Please enter either 1 to run Part 1 or 2 to run Part 2. Enter 0 to quit. Invalid entries will attempt another input.");
 					}
 			}	
+						
 		}while (runProject != 0);
 		
 		System.out.println("Done.");
