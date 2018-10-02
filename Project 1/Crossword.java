@@ -9,7 +9,7 @@ import java.io.*;
 
 public class Crossword{
 	//create new DictInterface object
-    public static DictInterface nDict = new MyDictionary();
+    public static MyDictionary nDict = new MyDictionary();
 	public static int boardLength = 0;
 	public static char[][] crosswordBoard;
 	public static StringBuilder [] sbHorizontal;
@@ -72,6 +72,7 @@ public class Crossword{
 			//close file
 			fr.close();
 		} catch (IOException e) {
+			System.out.println("Build Board Catch.");
 			e.printStackTrace();
         }
 		
@@ -90,6 +91,7 @@ public class Crossword{
 		try{
 			inputScanner = new Scanner(new FileInputStream(fileName));
 		}catch(IOException e){
+			System.out.println("Object Type Catch.");
 			e.printStackTrace();
 		}
         
@@ -148,7 +150,7 @@ public class Crossword{
 			System.out.println("In while loop");
 			System.out.println("tempCount: " + tempCount + ", nextCol: " + nextCol + ", nextRow: " + nextRow);
 			
-			printBoard(sbHorizontal[row], sbVertical[col]);
+			//printBoard(sbHorizontal[row], sbVertical[col]);
 			
 			//get the vcharacter to be attempted
 			char testChar = alphabet[tempCount];
@@ -194,19 +196,6 @@ public class Crossword{
 		
 		
 	}
-	
-	
-	public static void printBoard(StringBuilder horizontal, StringBuilder vertical){
-		
-		for(int i = 0; i < sbHorizontal.length; i++){
-			System.out.println("Horizontal SB: " + horizontal);
-		}
-		
-		for (int j = 0; j < sbVertical.length; j++){
-			System.out.println("Vertical SB: " + vertical);
-		}
-		
-	} 
 	
 	
 	public static boolean suffixPositive(char checkChar, int column, int row){
@@ -277,8 +266,9 @@ public class Crossword{
 			}
 		
 		//if it isn't the end of a column or row, need to check for prefix or word
-		}else{
+		}else{ //if(sbHorizontal[row].length() > 0 || sbVertical[row].length() > 0){
 			//check horizontally
+			System.out.println("Else");
 			if(sbHorizontal[row] == null){
 				sbHorizontal[row] = new StringBuilder();
 			}
@@ -286,12 +276,15 @@ public class Crossword{
 			sbHorizontal[row].append(checkChar);
 			
 			int validHorSuffix = nDict.searchPrefix(sbHorizontal[row]);
+			//for(StringBuilder s : sbHorizontal[row]) System.out.println(s.toString());
+			System.out.println("prefix: " + sbHorizontal[row].toString());
+			System.out.println("nDict: " + nDict.searchPrefix(sbHorizontal[row]) + ", validHorSuffix: " + validHorSuffix);
 			
 			System.out.println("Temp Horizontal: " + sbHorizontal[row]);
 			
 			int horizontalRemove = sbHorizontal[row].length() - 1;
 			
-			System.out.println("Index: " + horizontalRemove);
+			//System.out.println("Index: " + horizontalRemove);
 			
 			sbHorizontal[row].deleteCharAt(horizontalRemove);
 			
@@ -333,15 +326,6 @@ public class Crossword{
 			}
 			
 			
-			//if the letter is the first letter on the board, return true
-			if(sbVertical[column].length() == 1 && sbHorizontal[row].length() == 1){
-				return true;
-			}
-			
-			
-			
-			
-			
 			if(successh == true && successv == true){
 				System.out.println("///////////////////////////////////Suffix/////////////////////////////////");
 				return true;
@@ -349,11 +333,23 @@ public class Crossword{
 				System.out.println("----------------------------------Not Suffix-----------------------------");
 				return false;
 			}
-		}
+		}//else{
+		//	return true;
+		//}
 		
 	}
 	
-	
+	public static void printBoard(StringBuilder horizontal, StringBuilder vertical){
+		
+		for(int i = 0; i < sbHorizontal.length; i++){
+			System.out.println("Horizontal SB: " + horizontal);
+		}
+		
+		for (int j = 0; j < sbVertical.length; j++){
+			System.out.println("Vertical SB: " + vertical);
+		}
+		
+	} 
 	
 	
 	//run the script
@@ -371,8 +367,7 @@ public class Crossword{
 		
 		//create new scanner
         Scanner inscan = new Scanner(System.in);		
-		
-		
+		System.out.println("inscan build successfully.");
 		
 		//if the length/width of the board is > 0 (aka the board exists), then build the board
         if (0 < args.length) {
@@ -387,7 +382,44 @@ public class Crossword{
             System.exit(0);
         }
 		
-		System.out.println("Successfully Build Board");
+		try{
+			File inDict = new File("dict8.txt");
+			System.out.println("inDict built successfully.");
+		
+			//if the file doesn't exist, alert the user and end
+			if (!(inDict.exists())){
+				System.out.println("The dictionary file entered does not exist or cannot be found.");
+				System.exit(0);
+			}
+			
+			Scanner sc = new Scanner(inDict);
+			
+			
+			int i = 0;
+			//read in data for the dictionary
+			System.out.println("Starting while loop to build dictionary.");
+			while (sc.hasNext()) {
+				//set dictionary values
+				//System.out.println(sc.nextLine());
+				nDict.add(sc.nextLine());
+				i++;
+			}			
+			
+			sc.close();
+		}catch(FileNotFoundException e){
+			
+			System.out.println("Scan the dictionary catch.");
+			e.printStackTrace();
+			
+		}
+		
+		if (crosswordBoard == null){
+			System.out.println("Crossword Board Never made.");
+			//exit the program if there is not board to be built/used
+			System.exit(0);
+		}
+			
+		System.out.println("Successfully Built Board");
 
 		//set integer to be checked for action
         int runProject = -1;
@@ -413,6 +445,7 @@ public class Crossword{
 						System.out.println("MyDictionary");
 						//if part 1 fails, catch the error
                     } catch(Exception e) {
+						System.out.println("Object Type of MyDictionary catch.");
                         e.printStackTrace();
                     }
 					
@@ -431,6 +464,7 @@ public class Crossword{
                         objectType(args[0], "DLB");
 						//if part 2 fails, catch the error
                     } catch(Exception e) {
+						System.out.println("Object Type of DLB catch.");
                         e.printStackTrace();
                     }
 					
